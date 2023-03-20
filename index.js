@@ -3,8 +3,40 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
+// http *****//
+const http = require("http");
+const { Server } = require("socket.io");
+// *****//
 app.use(cors());
 app.use(express.json());
+
+//socket io operations start
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "https://findmentor-236d0.web.app",
+  },
+});
+io.on("connection", (socket) => {
+  console.log(`user connected: ${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  });
+
+  //  recieve and braodcast
+  socket.on("send_message", (data) => {
+    console.log(data);
+    socket.to(data.room).emit("recieve_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected", socket.id);
+  });
+});
+
+//** Socket operations Ends */
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
@@ -118,6 +150,6 @@ app.get("/", (req, res) => {
   res.send("findmentor server is running");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`server running on port ${port} `);
 });
