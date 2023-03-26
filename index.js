@@ -2,16 +2,17 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
+
 const port = process.env.PORT || 5000;
 // http *****//
-const http = require("http");
+const https = require("https");
 const { Server } = require("socket.io");
 // *****//
 app.use(cors());
 app.use(express.json());
 
 //socket io operations start
-const server = http.createServer(app);
+const server = https.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "https://findmentor-236d0.web.app",
